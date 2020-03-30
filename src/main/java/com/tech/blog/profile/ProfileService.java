@@ -2,12 +2,16 @@ package com.tech.blog.profile;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tech.blog.profile.model.Contact;
 import com.tech.blog.profile.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,14 +19,33 @@ import java.util.stream.Collectors;
 @Service
 public class ProfileService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ProfileService.class);
+
     @Autowired
     private ObjectMapper mapper;
 
-    File file = new File("src\\main\\resources\\users.json");
+    final File file = new File("src\\main\\resources\\users.json");
 
     public User getUser(String id) throws IOException {
+        if (id.equalsIgnoreCase("undefined") || id.equalsIgnoreCase(null)) {
+            System.out.println("wrong data came from client side");
+            return null;
+        }
+        LOG.info("getting user profile information with id {}",id);
         List<User> userList = mapper.readValue(file, new TypeReference<List<User>>(){});
-        return userList.stream().filter(user -> user.getUserId().equalsIgnoreCase(id)).findFirst().get();
+        Optional<User> userInDb = userList.stream()
+                .filter(user -> user.getUserId().equalsIgnoreCase(id))
+                .findFirst();
+        if (userInDb.isPresent()) {
+            return userInDb.get();
+        } else {
+            LOG.warn("user is not present in database creating new user {}", id);
+            User newUser = new User(id, "",  new Contact("", "", "", "", "", ""),
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            userList.add(newUser);
+            mapper.writeValue(file, userList);
+            return newUser;
+        }
     }
 
     public User saveUser(User user) throws IOException {
@@ -30,14 +53,17 @@ public class ProfileService {
         List<User> userList = mapper.readValue(file, new TypeReference<List<User>>(){});
         Optional<User> foundUser = userList.stream().filter(u -> u.getUserId() != null
                 && u.getUserId().equalsIgnoreCase(user.getUserId())).findFirst();
+
         if (foundUser.isPresent()) {
             userList.remove(foundUser.get());
         }
+
         userList.add(user);
         List<User> finalList = userList.stream().filter(u -> u.getUserId() != null).collect(Collectors.toList());
         mapper.writeValue(file, finalList);
 
-        finalList.stream().forEach(System.out::println);
+        LOG.info("user list in db {}", finalList);
+
         return user;
     }
 

@@ -13,7 +13,6 @@ import java.util.List;
  * phoneNumber
  * payroll
  */
-
 public class User {
 
     private String userId;
@@ -28,14 +27,15 @@ public class User {
 
     }
 
-    private User(UserBuilder userBuilder) {
-        this.userId =  userBuilder.userId;
-        this.summary = userBuilder.summary;
-        this.contact = userBuilder.contact;
-        this.workExperienceList = userBuilder.workExperienceList;
-        this.skillList = userBuilder.skillList;
-        this.certificationList = userBuilder.certificationList;
-        this.educationList = userBuilder.educationList;
+    public User(String userId, String summary, Contact contact, List<WorkExperience> workExperienceList,
+                List<Skill> skillList, List<Certification> certificationList, List<Education> educationList) {
+        this.userId = userId;
+        this.summary = summary;
+        this.contact = contact;
+        this.workExperienceList = workExperienceList;
+        this.skillList = skillList;
+        this.certificationList = certificationList;
+        this.educationList = educationList;
     }
 
     public String getUserId() {
@@ -51,79 +51,34 @@ public class User {
     }
 
     public List<WorkExperience> getWorkExperienceList() {
+        if (workExperienceList == null) {
+            return new ArrayList<>();
+        }
         return workExperienceList;
     }
 
     public List<Skill> getSkillList() {
+        if (skillList == null) {
+            return new ArrayList<>();
+        }
         return skillList;
     }
 
     public List<Certification> getCertificationList() {
+        if (certificationList == null) {
+            return new ArrayList<>();
+        }
         return certificationList;
     }
 
-    public static class UserBuilder{
-        private String userId;
-        private String summary;
-        private Contact contact;
-        private List<WorkExperience> workExperienceList;
-        private List<Skill> skillList;
-        private List<Certification> certificationList;
-        private List<Education> educationList;
-
-        public UserBuilder setUserId(String userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public UserBuilder setSummary(String summary) {
-            this.summary = summary;
-            return this;
-        }
-
-        public UserBuilder setContact(Contact contact) {
-            this.contact = contact;
-            return this;
-        }
-
-        public UserBuilder setWorkExperienceList(List<WorkExperience> workExperienceList) {
-            this.workExperienceList = workExperienceList;
-            return this;
-        }
-
-        public UserBuilder setSkillList(List<Skill> skillList) {
-            this.skillList = skillList;
-            return this;
-        }
-
-        public UserBuilder setCertificationList(List<Certification> certificationList) {
-            this.certificationList = certificationList;
-            return this;
-        }
-
-        public UserBuilder setEducationList(List<Education> educationList) {
-            this.educationList = educationList;
-            return this;
-        }
-
-        public User build() {
-            if (this.certificationList == null) {
-                this.certificationList = new ArrayList<>();
-            }
-            if (this.workExperienceList == null) {
-                this.workExperienceList = new ArrayList<>();
-            }
-
-            if (this.skillList == null) {
-                this.skillList = new ArrayList<>();
-            }
-
-            if (this.educationList == null) {
-                this.educationList = new ArrayList<>();
-            }
-            return new User(this);
+    public List<Education> getEducationList() {
+        if (educationList == null) {
+            return new ArrayList<>();
+        } else {
+            return educationList;
         }
     }
+
 
     @Override
     public String toString() {
