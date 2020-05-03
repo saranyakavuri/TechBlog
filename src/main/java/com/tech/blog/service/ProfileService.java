@@ -1,9 +1,9 @@
-package com.tech.blog.profile;
+package com.tech.blog.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tech.blog.profile.model.Contact;
-import com.tech.blog.profile.model.User;
+import com.tech.blog.model.Contact;
+import com.tech.blog.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class ProfileService {
     @Autowired
     private ObjectMapper mapper;
 
-    final File file = new File("src\\main\\resources\\users.json");
+    final File file = Paths.get("users.json").toFile();
 
     public User getUser(String id) throws IOException {
         if (id.equalsIgnoreCase("undefined") || id.equalsIgnoreCase(null)) {

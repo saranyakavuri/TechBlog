@@ -1,6 +1,7 @@
-package com.tech.blog.profile;
+package com.tech.blog.resources;
 
-import com.tech.blog.profile.model.User;
+import com.tech.blog.service.ProfileService;
+import com.tech.blog.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

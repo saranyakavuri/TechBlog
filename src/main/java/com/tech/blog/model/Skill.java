@@ -1,4 +1,4 @@
-package com.tech.blog.profile.model;
+package com.tech.blog.model;
 
 import java.util.Optional;
 
