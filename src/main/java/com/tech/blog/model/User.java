@@ -1,5 +1,7 @@
 package com.tech.blog.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +16,6 @@ import java.util.List;
  * payroll
  */
 public class User {
-
     private String userId;
     private String summary;
     private Contact contact;
@@ -23,8 +24,11 @@ public class User {
     private List<Certification> certificationList;
     private List<Education> educationList;
 
-    public User() {
+    public User() {}
 
+    public static User createNewUser(String id) {
+        return new User(id, "",  new Contact("", "", "", "", "", ""),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     public User(String userId, String summary, Contact contact, List<WorkExperience> workExperienceList,
@@ -78,7 +82,6 @@ public class User {
             return educationList;
         }
     }
-
 
     @Override
     public String toString() {

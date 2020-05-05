@@ -8,10 +8,11 @@ logging:
     console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
     file: "%d %p %c{1.} [%t] %m%n"
   file: /var/log/techblog.log
-security:
-  oauth2:
-    client:
-      clientId: 478012754672-1mse86h3na9846b26t9cm8mbp94j7cno.apps.googleusercontent.com
-      clientSecret: 6yt-i9XVbgGjDw-tvjDC1d5S
-    resource:
-      token-info-uri: https://accounts.google.com/o/oauth2/v2/auth
+cb:
+  connectionTimeOut: 10000
+  kvTimeOut: 10000
+  hosts: localhost
+  cluster:
+    username: srinath.kavuri
+    password: kavuri654
+    bucketname: user-profile

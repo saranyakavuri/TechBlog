@@ -1,7 +1,7 @@
 package com.tech.blog.resources;
 
-import com.tech.blog.service.ProfileService;
 import com.tech.blog.model.User;
+import com.tech.blog.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +15,8 @@ public class ProfileResource {
     @Autowired
     private ProfileService profileService;
 
-    @GetMapping("/{id}")
-    public User getUserInfo(@PathVariable String id) throws IOException {
+    @GetMapping()
+    public User getUserInfo(@RequestParam() String id) throws IOException {
         return profileService.getUser(id);
     }
 
