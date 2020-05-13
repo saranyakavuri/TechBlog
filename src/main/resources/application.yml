@@ -8,11 +8,22 @@ logging:
     console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
     file: "%d %p %c{1.} [%t] %m%n"
   file: /var/log/techblog.log
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    defaults:
+      enabled: false
 cb:
   connectionTimeOut: 10000
   kvTimeOut: 10000
   hosts: localhost
   cluster:
-    username: srinath.kavuri
-    password: kavuri654
-    bucketname: user-profile
+    username:
+    password:
+    bucketname:

@@ -1,0 +1,32 @@
+version: "3"
+services:
+  couchbase.lcl:
+    image: bentonam/couchbase-docker:enterprise
+    container_name: couchbase-demo
+    ports:
+      - "8091-8094:8091-8094"
+      - "11210:11210"
+    environment:
+      CLUSTER_USERNAME: srinath.kavuri
+      CLUSTER_PASSWORD: kavuri654
+      CLUSTER_NAME: TECH_BLOG_CLUSTER
+      SERVICES: data,index,query,fts
+      CLUSTER_RAMSIZE: 500
+      BUCKET: user-profile
+      BUCKET_RAMSIZE: 300
+      NODE_INIT_INDEX_PATH: /opt/couchbase/var/lib/couchbase/indexes
+    networks:
+      - tech-blog-network
+
+  techblog.lcl:
+    image: docker-tech-blog:latest
+    restart: always
+    depends_on:
+      - couchbase.lcl
+    ports:
+      - "8123:8123"
+    networks:
+      - tech-blog-network
+
+networks:
+  tech-blog-network:

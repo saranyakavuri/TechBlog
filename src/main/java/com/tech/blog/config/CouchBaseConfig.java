@@ -4,9 +4,7 @@ import com.couchbase.client.core.env.TimeoutConfig;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.ClusterOptions;
 import com.couchbase.client.java.codec.JacksonJsonSerializer;
-import com.couchbase.client.java.codec.JsonSerializer;
 import com.couchbase.client.java.codec.JsonTranscoder;
-import com.couchbase.client.java.codec.Transcoder;
 import com.couchbase.client.java.env.ClusterEnvironment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -70,6 +68,7 @@ public class CouchBaseConfig {
         cluster =  Cluster.connect(getConnectionString(),
                 ClusterOptions.clusterOptions(clusterUserName, clusterPassword)
                         .environment(buildClusterEnvironment()));
+        cluster.waitUntilReady(Duration.ofMinutes(5));
         return cluster;
     }
 
