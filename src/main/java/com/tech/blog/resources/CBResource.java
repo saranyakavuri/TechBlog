@@ -17,7 +17,7 @@ public class CBResource {
     private CBService cbService;
 
     @GetMapping("/universityMatcher")
-    private Set<String> getMatchedUniversityList(@RequestParam String matcher) {
+    private Set<String> getMatchedUniversityList(@RequestParam String matcher) throws InterruptedException {
         return cbService.filterUnivsMatcher(matcher);
     }
 

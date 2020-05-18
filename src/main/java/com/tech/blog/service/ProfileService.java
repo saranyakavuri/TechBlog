@@ -5,6 +5,8 @@ import com.tech.blog.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,7 +23,9 @@ public class ProfileService {
     @Autowired
     private CBService cbService;
 
-    public User getUser(String id) throws IOException {
+    @Cacheable(cacheNames = "profile-cache", key = "'profile'+#id")
+    public User getUser(String id) throws IOException, InterruptedException {
+        Thread.sleep(4000);
         if (id.equalsIgnoreCase("undefined") || id.equalsIgnoreCase(null)) {
             System.out.println("wrong data came from client side");
             return null;
@@ -32,6 +36,7 @@ public class ProfileService {
         return cbService.getUserFromProfileBucket(id);
     }
 
+    @CacheEvict(cacheNames = "profile-cache", key = "'profile'+#user.userId")
     public User saveUser(User user) throws IOException {
 
         cbService.upsertDocsToProfileBucket(user, user.getUserId());

@@ -7,10 +7,15 @@ import com.couchbase.client.java.codec.JacksonJsonSerializer;
 import com.couchbase.client.java.codec.JsonTranscoder;
 import com.couchbase.client.java.env.ClusterEnvironment;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,7 +27,8 @@ import java.util.stream.Collectors;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Configuration
-public class CouchBaseConfig {
+@EnableCaching
+public class CouchBaseConfig extends CachingConfigurerSupport {
 
     @Autowired
     private ObjectMapper mapper;
@@ -63,13 +69,40 @@ public class CouchBaseConfig {
         return hosts.stream().collect(Collectors.joining(","));
     }
 
-    @Bean()
+    @Bean
     public Cluster initCluster() {
         cluster =  Cluster.connect(getConnectionString(),
                 ClusterOptions.clusterOptions(clusterUserName, clusterPassword)
                         .environment(buildClusterEnvironment()));
         cluster.waitUntilReady(Duration.ofMinutes(5));
         return cluster;
+    }
+
+    @Bean
+    public net.sf.ehcache.CacheManager buildEhCacheManager() {
+        CacheConfiguration profileCache = new CacheConfiguration();
+        profileCache.setName("profile-cache");
+        profileCache.setMemoryStoreEvictionPolicy("LRU");
+        profileCache.setMaxEntriesLocalHeap(100);
+        profileCache.setTimeToLiveSeconds(300);
+
+        CacheConfiguration univsNamesCache = new CacheConfiguration();
+        univsNamesCache.setName("univs-names-cache");
+        univsNamesCache.setMemoryStoreEvictionPolicy("LRU");
+        univsNamesCache.setMaxEntriesLocalHeap(100);
+        univsNamesCache.setTimeToLiveSeconds(10000);
+
+        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+        configuration.addCache(profileCache);
+        configuration.addCache(univsNamesCache);
+
+        return net.sf.ehcache.CacheManager.newInstance(configuration);
+    }
+
+    @Bean
+    @Override
+    public CacheManager cacheManager() {
+        return new EhCacheCacheManager(buildEhCacheManager());
     }
 
     @PreDestroy

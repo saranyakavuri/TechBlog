@@ -15,6 +15,7 @@ import com.tech.blog.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import sun.awt.image.ImageWatched;
 
@@ -70,7 +71,9 @@ public class CBService {
         return bucket.defaultCollection();
     }
 
-    public Set<String> filterUnivsMatcher(String matcher) {
+    @Cacheable(cacheNames = "univs-names-cache", key = "#matcher")
+    public Set<String> filterUnivsMatcher(String matcher) throws InterruptedException {
+        Thread.sleep(4000);
         Collection profileBucketDefaultCollection = getProfileBucketDefaultCollection();
         GetResult getResult = profileBucketDefaultCollection.get(UNIVS_NAMES_DOC_ID);
         University univsSet = getResult.contentAs(University.class);

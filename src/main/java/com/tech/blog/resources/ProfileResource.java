@@ -16,7 +16,7 @@ public class ProfileResource {
     private ProfileService profileService;
 
     @GetMapping()
-    public User getUserInfo(@RequestParam() String id) throws IOException {
+    public User getUserInfo(@RequestParam() String id) throws IOException, InterruptedException {
         return profileService.getUser(id);
     }
 
