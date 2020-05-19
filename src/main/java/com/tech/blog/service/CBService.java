@@ -1,12 +1,12 @@
 package com.tech.blog.service;
 
+import com.couchbase.client.core.error.CouchbaseException;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.codec.TypeRef;
 import com.couchbase.client.java.kv.GetResult;
 import com.couchbase.client.java.kv.MutationResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.blog.config.CouchBaseConfig;
 import com.tech.blog.model.InterviewQuestion;
@@ -17,20 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import sun.awt.image.ImageWatched;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tech.blog.model.Constants.UNIVS_NAMES_DOC_ID;
 
 @Service
 public class CBService {
-    Logger logger = LoggerFactory.getLogger(CBService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CBService.class);
 
     @Autowired
     private CouchBaseConfig couchBaseConfig;
@@ -39,30 +34,35 @@ public class CBService {
     @Autowired
     private ObjectMapper mapper;
     
-    public void upsertDocsToProfileBucket(Object userObject, String docId) throws JsonProcessingException {
+    public void upsertDocsToProfileBucket(Object userObject, String docId) {
         Collection cbDefaultCollection = getProfileBucketDefaultCollection();
         MutationResult mutationResult = cbDefaultCollection.upsert(docId, userObject);
 
         if (mutationResult != null) {
-            logger.info("document id {} successfully upserted to couchbase", docId);
+            LOGGER.info("document id {} successfully upserted to couchbase", docId);
         }
     }
 
-    public User getUserFromProfileBucket(String userId) throws IOException {
+    public Optional<User> getUserFromProfileBucket(String userId) {
 
         Collection cbDefaultCollection = getProfileBucketDefaultCollection();
-        User user;
+        Optional<User> user;
 
-        if (cbDefaultCollection.exists(userId).exists()) {
-            GetResult getResult = cbDefaultCollection.get(userId);
-            user = getResult.contentAs(User.class);
-        } else {
-            // user is not in our couchbase bucket so create one document for user
-            user = User.createNewUser(userId);
-            upsertDocsToProfileBucket(user, userId);
+        try {
+            if (cbDefaultCollection.exists(userId).exists()) {
+                GetResult getResult = cbDefaultCollection.get(userId);
+                user = Optional.of(getResult.contentAs(User.class));
+            } else {
+                // user is not in our couchbase bucket so create one document for user
+                user = Optional.of(User.createNewUser(userId));
+                upsertDocsToProfileBucket(user, userId);
+            }
+
+            return user;
+        } catch (CouchbaseException ex) {
+            LOGGER.error("cb exception error", ex);
+            return Optional.empty();
         }
-
-        return user;
     }
 
     private Collection getProfileBucketDefaultCollection() {
