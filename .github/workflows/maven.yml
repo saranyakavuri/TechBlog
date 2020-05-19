@@ -33,6 +33,8 @@ jobs:
       run: mkdir artifact
     - name: copy jar file to artifact directory
       run: cp target/techblog.jar artifact
+    - name: copy spring configuration file to artifact
+      run: cp application-uat.yml artifact
     - uses: actions/upload-artifact@v1
       with:
         name: BuildArtifact
