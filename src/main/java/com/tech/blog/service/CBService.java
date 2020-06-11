@@ -1,6 +1,5 @@
 package com.tech.blog.service;
 
-import com.couchbase.client.core.error.CouchbaseException;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.Collection;
@@ -48,21 +47,16 @@ public class CBService {
         Collection cbDefaultCollection = getProfileBucketDefaultCollection();
         Optional<User> user;
 
-        try {
-            if (cbDefaultCollection.exists(userId).exists()) {
-                GetResult getResult = cbDefaultCollection.get(userId);
-                user = Optional.of(getResult.contentAs(User.class));
-            } else {
-                // user is not in our couchbase bucket so create one document for user
-                user = Optional.of(User.createNewUser(userId));
-                upsertDocsToProfileBucket(user, userId);
-            }
-
-            return user;
-        } catch (CouchbaseException ex) {
-            LOGGER.error("cb exception error", ex);
-            return Optional.empty();
+        if (cbDefaultCollection.exists(userId).exists()) {
+            GetResult getResult = cbDefaultCollection.get(userId);
+            user = Optional.of(getResult.contentAs(User.class));
+        } else {
+            // user is not in our couchbase bucket so create one document for user
+            user = Optional.of(User.createNewUser(userId));
+            upsertDocsToProfileBucket(user, userId);
         }
+
+        return user;
     }
 
     private Collection getProfileBucketDefaultCollection() {
